@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_service_report_form" model="ir.ui.view">
+        <field name="name">service.report.form</field>
+        <field name="model">service.report</field>
+        <field name="arch" type="xml">
+            <form string="Service Report">
+                <sheet>
+                    <group>
+                        <field name="name" readonly="1"/>
+                        <field name="transport_cost"/>
+                        <field name="hotel_cost"/>
+                        <field name="machine_parts_cost"/>
+                        <field name="email"/>
+                    </group>
+                    <notebook>
+                        <page string="Employee Services">
+                            <field name="employee_services">
+                                <tree editable="bottom">
+                                    <field name="description"/>
+                                    <field name="quantity"/>
+                                    <field name="unit_cost"/>
+                                    <field name="total_cost" readonly="1"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Client Signature">
+                            <group>
+                                <!-- Use the signature widget to allow drawing a signature -->
+                                <field name="client_signature" widget="signature" class="oe_avatar"/>
+                                <!-- Optional: show the signed boolean to see its current value -->
+                                <field name="signed"/>
+                            </group>
+                        </page>
+
+                    </notebook>
+                    <group>
+                        <field name="total_cost" readonly="1"/>
+                        <button name="action_print" type="object" string="Send PDF" class="btn-primary"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree view for listing reports -->
+    <record id="view_service_report_tree" model="ir.ui.view">
+        <field name="name">service.report.tree</field>
+        <field name="model">service.report</field>
+        <field name="arch" type="xml">
+            <tree string="Service Reports">
+                <field name="name"/>
+                <field name="total_cost"/>
+                <field name="signed"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Action and Menu -->
+    <record id="action_service_report" model="ir.actions.act_window">
+        <field name="name">Service Reports</field>
+        <field name="res_model">service.report</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_service_report_root" name="Service Reports" sequence="10"/>
+    <menuitem id="menu_service_report" name="Reports" parent="menu_service_report_root" action="action_service_report" sequence="10"/>
+
+
+
+</odoo>

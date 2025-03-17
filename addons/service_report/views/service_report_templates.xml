@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="report_service_report_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <div class="page">
+                    <h2>Service Report: <t t-esc="doc.name"/></h2>
+                    <p><strong>Transport Cost:</strong> <t t-esc="doc.transport_cost"/></p>
+                    <p><strong>Hotel Cost:</strong> <t t-esc="doc.hotel_cost"/></p>
+                    <p><strong>Machine Parts Cost:</strong> <t t-esc="doc.machine_parts_cost"/></p>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th>Quantity</th>
+                                <th>Unit Cost</th>
+                                <th>Total Cost</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="doc.employee_services" t-as="line">
+                                <tr>
+                                    <td><t t-esc="line.description"/></td>
+                                    <td><t t-esc="line.quantity"/></td>
+                                    <td><t t-esc="line.unit_cost"/></td>
+                                    <td><t t-esc="line.total_cost"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                    <h3>Total: <t t-esc="doc.total_cost"/></h3>
+                    <div>
+                        <p><strong>Client Signature:</strong></p>
+                        <t t-if="doc.client_signature">
+                            <img t-if="doc.client_signature"
+                                t-att-src="'data:image/png;base64,' + doc.client_signature.decode('ascii')"
+                                style="max-width:300px;" />
+                        </t>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <!-- Define the report action -->
+    <record id="action_report_service_report_pdf" model="ir.actions.report">
+        <field name="name">Service Report</field>
+        <field name="model">service.report</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">service_report.report_service_report_template</field>
+        <field name="report_file">service_report.report_service_report_template</field>
+        <field name="print_report_name">'Service_Report_%s' % (object.name)</field>
+        <field name="binding_type">report</field>
+    </record>
+
+
+</odoo>

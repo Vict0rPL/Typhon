@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="email_template_service_report" model="mail.template">
+        <field name="name">Service Report Email</field>
+        <field name="model_id" ref="model_service_report"/>
+        <field name="subject">Service Report - ${object.name}</field>
+        <field name="email_from">${(user.email or 'noreply@example.com')}</field>
+        <field name="email_to">${object.email}</field>
+        <field name="body_html"><![CDATA[
+            <p>Hello,</p>
+            <p>Please find attached the service report <strong>${object.name}</strong>.</p>
+            <p>Regards,</p>
+            <p>${user.name}</p>
+        ]]></field>
+    </record>
+</odoo>

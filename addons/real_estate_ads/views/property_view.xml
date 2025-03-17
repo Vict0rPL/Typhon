@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+        <record id="estate_property_tree_view" model="ir.ui.view">
+            <field name="name">estate.property.tree</field>
+            <field name="model">estate.property</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="type_id"/>
+                    <field name="postcode"/>
+                    <field name="date_availability"/>
+                    <field name="expected_price"/>
+                    <field name="best_offer"/>
+                    <field name="selling_price"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="estate_property_search_view" model="ir.ui.view">
+            <field name="name">estate.property.search</field>
+            <field name="model">estate.property</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="state"/>
+                    <field name="postcode"/>
+                    <field name="buyer_id"/>
+                    <filter string="New" name="new_state" domain="[('state', '=', 'new')]"/>
+                    <filter string="Sold" name="sold_state" domain="[('state', '=', 'sold')]"/>
+                    <separator/>
+                    <filter string="Received" name="received_state" domain="[('state', '=', 'received')]"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Status" name="group_by_state" context="{'group_by': 'state'}"/>
+                    </group>
+                    <searchpanel>
+                        <field name="state" icon="fa-filter" groupby="group_by_state" limit="0"/>
+                    </searchpanel>
+                </search>
+            </field>
+        </record>
+
+        <record id="estate_property_kanban_view" model="ir.ui.view">
+            <field name="name">estate.property.kanban</field>
+            <field name="model">estate.property</field>
+            <field name="arch" type="xml">
+                <kanban>
+                    <field name="name"/>
+                    <field name="state"/>
+                    <field name="postcode"/>
+                    <field name="buyer_id"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_kanban_details">
+                                <strong class="o_kanban_record_title">
+                                    <field name="name"/>
+                                </strong>
+                                <field name="name"/>
+                                <div class="o_kanban_tags_section">
+                                    <field name="tag_ids" widget="many2many_tags"/>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <record id="estate_property_form_view" model="ir.ui.view">
+            <field name="name">estate.property.form</field>
+            <field name="model">estate.property</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="action_sold" type="object" string="Sold"/>
+                        <button name="action_cancel" type="object" string="Cancel"/>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="tag_ids" widget="many2many_tags"/>
+                            <group>
+                                <field name="state"/>
+                                <field name="type_id"/>
+                                <field name="postcode"/>
+                                <field name="date_availability"/>
+                            </group>
+                            <group>
+                                <field name="expected_price"/>
+                                <field name="best_offer"/>
+                                <field name="selling_price"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Description">
+                                <group> <field name="description"/>
+                                <field name="bedrooms"/>
+                                <field name="living_area"/>
+                                <field name="facades"/>
+                                <field name="garage"/>
+                                <field name="garden"/>
+                                <field name="garden_area"/>
+                                <field name="garden_orientation"/>
+                                <field name="total_area"/>
+                                </group>
+                            </page>
+                            <page string="Offers">
+                                 <field name="offer_ids">
+                                    <tree editable="bottom">
+                                        <field name="price"/>
+                                        <field name="partner_id"/>
+                                        <field name="creation_date"/>
+                                        <field name="validity"/>
+                                        <field name="deadline"/>
+                                        <field name="status" nolabel="1"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Other Info">
+                                <group>
+                                    <field name="sales_id"/>
+                                    <field name="buyer_id"/>
+                                    <field name="phone"/>
+                                </group>
+                            </page>
+                            </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_property" model="ir.actions.act_window">
+            <field name="name">Property</field>
+            <field name="res_model">estate.property</field>
+            <field name="view_mode">tree,kanban,form</field>
+            <field name="view_id" ref="estate_property_tree_view"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create a Property to Advertise
+                </p>
+            </field>
+        </record>
+    </data>
+</odoo>
