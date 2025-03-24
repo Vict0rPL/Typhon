@@ -6,38 +6,68 @@
         <field name="arch" type="xml">
             <form string="Service Report">
                 <sheet>
-                    <group>
-                        <field name="name" readonly="1"/>
-                        <field name="transport_cost"/>
-                        <field name="hotel_cost"/>
-                        <field name="machine_parts_cost"/>
+                    <group># general
+                        <field name="name"/>
+                        <field name="service_description"/>
+                        <field name="employee_id"/>
+                        <field name="location"/>
+                        <field name="service_date"/>
                         <field name="email"/>
                     </group>
                     <notebook>
-                        <page string="Employee Services">
+                        <page string="Travel Details">
+                            <field name="travel_details">
+                                <tree editable="bottom">
+                                    <field name="start_location"/>
+                                    <field name="end_location"/>
+                                    <field name="distance"/>
+                                    <field name="time"/>
+                                    <field name="date"/>
+                                </tree>
+                            </field>
+                            <group>
+                                <field name="transport_cost"/>
+                                <field name="hotel_cost"/>
+                            </group>
+                        </page>
+                        <page string="Work Details">
                             <field name="employee_services">
+                                <tree editable="bottom">
+                                    <field name="description"/>
+                                    <field name="time"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Parts Used">
+                            <field name="parts_used">
                                 <tree editable="bottom">
                                     <field name="description"/>
                                     <field name="quantity"/>
                                     <field name="unit_cost"/>
-                                    <field name="total_cost" readonly="1"/>
+                                    <field name="total_cost" readonly="true"/>
                                 </tree>
                             </field>
-                        </page>
-                        <page string="Client Signature">
                             <group>
+                                <field name="machine_parts_cost" readonly="1"/>
+                            </group>
+                        </page>
+                        <page string="Summary">
+                            <group>
+                                <field name="client_email"/>
                                 <!-- Use the signature widget to allow drawing a signature -->
                                 <field name="client_signature" widget="signature" class="oe_avatar"/>
                                 <!-- Optional: show the signed boolean to see its current value -->
                                 <field name="signed"/>
                             </group>
+                            <group>
+                                <field name="total_work_time" readonly="1"/>
+                                <field name="total_cost" readonly="1"/>
+                                <button name="action_print" type="object" string="Send PDF" class="btn-primary"/>
+                            </group>
                         </page>
 
                     </notebook>
-                    <group>
-                        <field name="total_cost" readonly="1"/>
-                        <button name="action_print" type="object" string="Send PDF" class="btn-primary"/>
-                    </group>
+
                 </sheet>
             </form>
         </field>

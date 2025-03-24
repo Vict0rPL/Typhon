@@ -8,26 +8,47 @@ from odoo.exceptions import UserError
 class ServiceReport(models.Model):
     _name = 'service.report'
     _description = 'Service Report'
-
-    name = fields.Char('Report Reference', required=True, copy=False, readonly=True, default=lambda self: _('New'))
+    # General
+    name = fields.Char('Report Reference', required=True, copy=False, default=lambda self: _('New Report'))
+    employee_id = fields.Many2one('res.users', string="Employee", required=True)
+    location = fields.Many2one('res.partner', string="Service Location", required=True)
+    service_date = fields.Date('Service Date')
+    service_description = fields.Text("Service Description")
+    # Travel
+    travel_details = fields.One2many('service.report.travel_line', 'report_id', string="Travel Details")
     transport_cost = fields.Float('Transport Cost')
     hotel_cost = fields.Float('Hotel Cost')
-    machine_parts_cost = fields.Float('Machine Parts Cost')
-    employee_services = fields.One2many('service.report.line', 'report_id', string="Employee Services")
-    total_cost = fields.Float(string="Total Cost", compute="_compute_total", store=True)
+    # Work Details
+    employee_services = fields.One2many('service.report.work_line', 'report_id', string="Employee Services")
+    # Parts Used
+    parts_used = fields.One2many('service.report.part_line', 'report_id', string="Parts Used")
+    machine_parts_cost = fields.Float(string="Machine Parts Cost", compute="_compute_parts_cost", store=True)
+    #Summary
+    total_work_time = fields.Float(string="Total Work Time", compute="_compute_total_time", store=True)
+    total_cost = fields.Float(string="Total Cost", compute="_compute_total_cost", store=True)
+    # Client Data and Signature
+    client_email = fields.Char("Client Email")
     email = fields.Char("Accounting Email", required=True)
     client_signature = fields.Binary("Client Signature", help="Client signature image")
-    signed = fields.Boolean(
-        string="Signed by Client",
-        compute="_compute_signed",
-        store=True
-    )
+    signed = fields.Boolean( string="Signed by Client", compute="_compute_signed", store=True)
 
-    @api.depends('transport_cost', 'hotel_cost', 'machine_parts_cost', 'employee_services.total_cost')
-    def _compute_total(self):
+    @api.depends('travel_details.time', 'employee_services.time')
+    def _compute_total_time(self):
         for record in self:
-            line_total = sum(line.total_cost for line in record.employee_services)
-            record.total_cost = record.transport_cost + record.hotel_cost + record.machine_parts_cost + line_total
+            travel_line_total = sum(line.time for line in record.employee_services)
+            services_line_total = sum(line.time for line in record.travel_details)
+            record.total_work_time = travel_line_total + services_line_total
+
+    @api.depends('transport_cost', 'hotel_cost', 'machine_parts_cost', 'parts_used.total_cost')
+    def _compute_total_cost(self):
+        for record in self:
+            record.total_cost = record.transport_cost + record.hotel_cost + record.machine_parts_cost
+
+    @api.depends('parts_used.total_cost')
+    def _compute_parts_cost(self):
+        for record in self:
+            part_line_total = sum(line.total_cost for line in record.parts_used)
+            record.machine_parts_cost = part_line_total
 
     @api.depends('client_signature')
     def _compute_signed(self):
@@ -67,19 +88,42 @@ class ServiceReport(models.Model):
             'service_report.action_report_service_report_pdf')
         .report_action(self))
 
-class ServiceReportLine(models.Model):
-    _name = 'service.report.line'
-    _description = 'Service Report Line'
+
+class ServiceReportTravelLine(models.Model):
+    _name = 'service.report.travel_line'
+    _description = 'Service Report Travel Line'
 
     report_id = fields.Many2one('service.report', string='Service Report', required=True, ondelete='cascade')
-    description = fields.Char("Service Description")
+    start_location = fields.Char("Start Location")
+    end_location = fields.Char("End Location")
+    distance = fields.Float("Distance") #calculate?
+    time = fields.Float("Travel Time")
+    date = fields.Date('Travel Date')
+
+
+class ServiceReportWorkLine(models.Model):
+    _name = 'service.report.work_line'
+    _description = 'Service Report Work Line'
+
+    report_id = fields.Many2one('service.report', string='Service Report', required=True, ondelete='cascade')
+    description = fields.Char("Work Description")
+    time = fields.Float("Work Time")
+
+
+class ServiceReportPartLine(models.Model):
+    _name = 'service.report.part_line'
+    _description = 'Service Report Part Line'
+
+    report_id = fields.Many2one('service.report', string='Service Report', required=True, ondelete='cascade')
+    description = fields.Char("Part Description")
     quantity = fields.Float("Quantity")
     unit_cost = fields.Float("Unit Cost")
-    total_cost = fields.Float(string="Total Cost", compute="_compute_total_cost", store=True)
+    total_cost = fields.Float(string="Total Cost", compute="_compute_line_cost", store=True)
 
     @api.depends('quantity', 'unit_cost')
-    def _compute_total_cost(self):
+    def _compute_line_cost(self):
         for line in self:
             line.total_cost = line.quantity * line.unit_cost
+
 
 
