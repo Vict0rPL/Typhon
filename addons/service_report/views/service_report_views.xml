@@ -101,7 +101,16 @@
         <field name="view_mode">tree,form</field>
     </record>
 
-    <menuitem id="menu_service_report_root" name="Service Reports" sequence="10"/>
-    <menuitem id="menu_service_report" name="Reports" parent="menu_service_report_root" action="action_service_report" sequence="10"/>
+<menuitem id="menu_service_report_root"
+          name="Service Reports"
+          sequence="10"
+          groups="service_report.group_service_user"/>
+
+<menuitem id="menu_service_report"
+          name="Reports"
+          parent="menu_service_report_root"
+          action="action_service_report"
+          sequence="10"
+          groups="service_report.group_service_user"/>
 
 </odoo>
