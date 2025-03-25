@@ -2,12 +2,74 @@
 <odoo>
     <template id="report_service_report_template">
         <t t-call="web.html_container">
+            <t t-set="format_float_time" t-value="lambda t: '%02d:%02d' % (int(t), round((t % 1) * 60))"/>
             <t t-foreach="docs" t-as="doc">
                 <div class="page">
                     <h2>Service Report: <t t-esc="doc.name"/></h2>
+
+                    <!-- General Information -->
+                    <p><strong>Description:</strong> <t t-esc="doc.service_description"/></p>
+                    <p><strong>Employee:</strong> <t t-esc="doc.employee_id.name"/></p>
+                    <p><strong>Location:</strong> <t t-esc="doc.location.name"/></p>
+                    <p><strong>Service Date:</strong> <t t-esc="doc.service_date"/></p>
+                    <p><strong>Email:</strong> <t t-esc="doc.email"/></p>
+
+                    <!-- Travel Details -->
+                    <h3>Travel Details</h3>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Start</th>
+                                <th>End</th>
+                                <th>Distance</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Total Time</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="doc.travel_details" t-as="td">
+                                <tr>
+                                    <td><t t-esc="td.start_location"/></td>
+                                    <td><t t-esc="td.end_location"/></td>
+                                    <td><t t-esc="td.distance"/></td>
+                                    <td><t t-esc="format_float_time(float(td.start_time)) if td.start_time else ''"/></td>
+                                    <td><t t-esc="format_float_time(float(td.end_time)) if td.end_time else ''"/></td>
+                                    <td><t t-esc="format_float_time(float(td.time)) if td.time else ''"/></td>
+                                    <td><t t-esc="td.date"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
                     <p><strong>Transport Cost:</strong> <t t-esc="doc.transport_cost"/></p>
                     <p><strong>Hotel Cost:</strong> <t t-esc="doc.hotel_cost"/></p>
-                    <p><strong>Machine Parts Cost:</strong> <t t-esc="doc.machine_parts_cost"/></p>
+
+                    <!-- Work Details -->
+                    <h3>Work Details</h3>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="doc.employee_services" t-as="line">
+                                <tr>
+                                    <td><t t-esc="line.description"/></td>
+                                    <td><t t-esc="format_float_time(float(line.start_time)) if line.start_time else ''"/></td>
+                                    <td><t t-esc="format_float_time(float(line.end_time)) if line.end_time else ''"/></td>
+                                    <td><t t-esc="format_float_time(float(line.time)) if line.time else ''"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <!-- Parts Used -->
+                    <h3>Parts Used</h3>
                     <table class="table table-sm">
                         <thead>
                             <tr>
@@ -18,31 +80,37 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <t t-foreach="doc.employee_services" t-as="line">
+                            <t t-foreach="doc.parts_used" t-as="part">
                                 <tr>
-                                    <td><t t-esc="line.description"/></td>
-                                    <td><t t-esc="line.quantity"/></td>
-                                    <td><t t-esc="line.unit_cost"/></td>
-                                    <td><t t-esc="line.total_cost"/></td>
+                                    <td><t t-esc="part.description"/></td>
+                                    <td><t t-esc="part.quantity"/></td>
+                                    <td><t t-esc="part.unit_cost"/></td>
+                                    <td><t t-esc="part.total_cost"/></td>
                                 </tr>
                             </t>
                         </tbody>
                     </table>
-                    <h3>Total: <t t-esc="doc.total_cost"/></h3>
-                    <div>
+                    <p><strong>Machine Parts Cost:</strong> <t t-esc="doc.machine_parts_cost"/></p>
+
+                    <!-- Summary -->
+                    <h3>Summary</h3>
+                    <p><strong>Total Work Time:</strong> <t t-esc="format_float_time(float(doc.total_work_time)) if doc.total_work_time else ''"/></p>
+                    <p><strong>Total Cost:</strong> <t t-esc="doc.total_cost"/></p>
+                    <p><strong>Client Email:</strong> <t t-esc="doc.client_email"/></p>
+                    <p><strong>Signed:</strong> <t t-esc="doc.signed and 'Yes' or 'No'"/></p>
+
+                    <!-- Signature -->
+                    <t t-if="doc.client_signature">
                         <p><strong>Client Signature:</strong></p>
-                        <t t-if="doc.client_signature">
-                            <img t-if="doc.client_signature"
-                                t-att-src="'data:image/png;base64,' + doc.client_signature.decode('ascii')"
-                                style="max-width:300px;" />
-                        </t>
-                    </div>
+                        <img t-att-src="'data:image/png;base64,' + doc.client_signature.decode('ascii')"
+                             style="max-width:300px;"/>
+                    </t>
                 </div>
             </t>
         </t>
     </template>
 
-    <!-- Define the report action -->
+     <!-- Define the report action -->
     <record id="action_report_service_report_pdf" model="ir.actions.report">
         <field name="name">Service Report</field>
         <field name="model">service.report</field>
@@ -52,6 +120,5 @@
         <field name="print_report_name">'Service_Report_%s' % (object.name)</field>
         <field name="binding_type">report</field>
     </record>
-
 
 </odoo>

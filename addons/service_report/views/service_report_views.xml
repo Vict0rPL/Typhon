@@ -6,22 +6,28 @@
         <field name="arch" type="xml">
             <form string="Service Report">
                 <sheet>
-                    <group># general
-                        <field name="name"/>
-                        <field name="service_description"/>
-                        <field name="employee_id"/>
-                        <field name="location"/>
-                        <field name="service_date"/>
-                        <field name="email"/>
+                    <group>
+                        <field name="is_not_manager" invisible="1"/>
+
+                        <field name="name" modifiers="{'readonly': [('is_not_manager','=',True)]}"/>
+                        <field name="service_description" modifiers="{'readonly': [('is_not_manager','=',True)]}"/>
+                        <field name="employee_id" modifiers="{'readonly': [('is_not_manager','=',True)]}"/>
+                        <field name="location" modifiers="{'readonly': [('is_not_manager','=',True)]}"/>
+                        <field name="service_date" modifiers="{'readonly': [('is_not_manager','=',True)]}"/>
+                        <field name="email" modifiers="{'readonly': [('is_not_manager','=',True)]}"/>
                     </group>
+
+
                     <notebook>
                         <page string="Travel Details">
                             <field name="travel_details">
                                 <tree editable="bottom">
                                     <field name="start_location"/>
                                     <field name="end_location"/>
+                                    <field name="start_time" widget="float_time"/>
+                                    <field name="end_time" widget="float_time"/>
                                     <field name="distance"/>
-                                    <field name="time"/>
+                                    <field name="time" widget="float_time"/>
                                     <field name="date"/>
                                 </tree>
                             </field>
@@ -34,7 +40,9 @@
                             <field name="employee_services">
                                 <tree editable="bottom">
                                     <field name="description"/>
-                                    <field name="time"/>
+                                    <field name="start_time" widget="float_time"/>
+                                    <field name="end_time" widget="float_time"/>
+                                    <field name="time" widget="float_time"/>
                                 </tree>
                             </field>
                         </page>
@@ -60,14 +68,14 @@
                                 <field name="signed"/>
                             </group>
                             <group>
-                                <field name="total_work_time" readonly="1"/>
+                                <field name="total_work_time" widget="float_time" readonly="1"/>
                                 <field name="total_cost" readonly="1"/>
-                                <button name="action_print" type="object" string="Send PDF" class="btn-primary"/>
                             </group>
+
                         </page>
 
                     </notebook>
-
+                <button name="action_print" type="object" string="Send PDF" class="btn-primary"/>
                 </sheet>
             </form>
         </field>
@@ -95,7 +103,5 @@
 
     <menuitem id="menu_service_report_root" name="Service Reports" sequence="10"/>
     <menuitem id="menu_service_report" name="Reports" parent="menu_service_report_root" action="action_service_report" sequence="10"/>
-
-
 
 </odoo>

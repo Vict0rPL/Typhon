@@ -2,4 +2,5 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_service_report_travel_line,access_service_report_travel_line,model_service_report_travel_line,base.group_user,1,1,1,1
 access_service_report_work_line,access_service_report_work_line,model_service_report_work_line,base.group_user,1,1,1,1
 access_service_report_part_line,access_service_report_part_line,model_service_report_part_line,base.group_user,1,1,1,1
-access_service_report_user,access_service_report_user,model_service_report,base.group_user,1,1,1,1
+access_service_report_user,access_service_report_user,model_service_report,base.group_user,1,1,0,0
+access_service_report_manager,access_service_report_manager,model_service_report,service_report.group_service_manager,1,1,1,1

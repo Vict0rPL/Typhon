@@ -1,19 +1,22 @@
 # models/service_report.py
-
 import base64
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
+from odoo.exceptions import AccessError
 
 
 class ServiceReport(models.Model):
     _name = 'service.report'
     _description = 'Service Report'
+    #Check role
+    is_not_manager = fields.Boolean(compute='_compute_is_not_manager', store=False)
     # General
     name = fields.Char('Report Reference', required=True, copy=False, default=lambda self: _('New Report'))
     employee_id = fields.Many2one('res.users', string="Employee", required=True)
     location = fields.Many2one('res.partner', string="Service Location", required=True)
     service_date = fields.Date('Service Date')
     service_description = fields.Text("Service Description")
+    email = fields.Char("Accounting Email", required=True)
     # Travel
     travel_details = fields.One2many('service.report.travel_line', 'report_id', string="Travel Details")
     transport_cost = fields.Float('Transport Cost')
@@ -28,7 +31,6 @@ class ServiceReport(models.Model):
     total_cost = fields.Float(string="Total Cost", compute="_compute_total_cost", store=True)
     # Client Data and Signature
     client_email = fields.Char("Client Email")
-    email = fields.Char("Accounting Email", required=True)
     client_signature = fields.Binary("Client Signature", help="Client signature image")
     signed = fields.Boolean( string="Signed by Client", compute="_compute_signed", store=True)
 
@@ -54,6 +56,31 @@ class ServiceReport(models.Model):
     def _compute_signed(self):
         for rec in self:
             rec.signed = bool(rec.client_signature)
+
+    @api.model
+    def create(self, vals):
+        if not self.env.user.has_group('service_report.group_service_manager'):
+            raise AccessError(_("Only managers can create service reports."))
+        return super().create(vals)
+
+    def unlink(self):
+        if not self.env.user.has_group('service_report.group_service_manager'):
+            raise AccessError(_("Only managers can delete service reports."))
+        return super().unlink()
+
+    def _compute_is_not_manager(self):
+        is_manager = self.env.user.has_group('service_report.group_service_manager')
+        for record in self:
+            record.is_not_manager = not is_manager
+
+    def write(self, vals):
+        restricted_fields = {
+            'name', 'service_description', 'employee_id', 'location', 'service_date', 'email'
+        }
+        if not self.env.user.has_group('service_report.group_service_manager'):
+            if restricted_fields & set(vals):
+                raise AccessError(_("Only managers can modify general service fields."))
+        return super().write(vals)
 
     def action_send_pdf(self):
         """Send the service report PDF to the given accounting email."""
@@ -96,9 +123,20 @@ class ServiceReportTravelLine(models.Model):
     report_id = fields.Many2one('service.report', string='Service Report', required=True, ondelete='cascade')
     start_location = fields.Char("Start Location")
     end_location = fields.Char("End Location")
-    distance = fields.Float("Distance") #calculate?
-    time = fields.Float("Travel Time")
+    start_time = fields.Float("Start Time (HH.MM)", help="Use 24-hour format, e.g., 14.5 for 14:30")
+    end_time = fields.Float("End Time (HH.MM)", help="Use 24-hour format, e.g., 16.25 for 16:15")
+    time = fields.Float("Travel Time (Hours)", compute="_compute_travel_time", store=True)
+    distance = fields.Float("Distance")
     date = fields.Date('Travel Date')
+
+    @api.depends('start_time', 'end_time')
+    def _compute_travel_time(self):
+        for record in self:
+            if record.start_time is not None and record.end_time is not None:
+                record.time = max(record.end_time - record.start_time, 0.0)
+            else:
+                record.time = 0.0
+
 
 
 class ServiceReportWorkLine(models.Model):
@@ -107,7 +145,17 @@ class ServiceReportWorkLine(models.Model):
 
     report_id = fields.Many2one('service.report', string='Service Report', required=True, ondelete='cascade')
     description = fields.Char("Work Description")
-    time = fields.Float("Work Time")
+    start_time = fields.Float("Start Time (HH.MM)", help="Use 24-hour format, e.g., 14.5 for 14:30")
+    end_time = fields.Float("End Time (HH.MM)", help="Use 24-hour format, e.g., 16.25 for 16:15")
+    time = fields.Float("Work Time (Hours)", compute="_compute_work_time", store=True)
+
+    @api.depends('start_time', 'end_time')
+    def _compute_work_time(self):
+        for record in self:
+            if record.start_time is not None and record.end_time is not None:
+                record.time = max(record.end_time - record.start_time, 0.0)
+            else:
+                record.time = 0.0
 
 
 class ServiceReportPartLine(models.Model):

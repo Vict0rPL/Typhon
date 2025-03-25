@@ -1,0 +1,25 @@
+<odoo>
+    <!-- Rule: Regular users can only see their own reports -->
+    <record id="service_report_rule_user_own" model="ir.rule">
+        <field name="name">Service Report - Own Only</field>
+        <field name="model_id" ref="model_service_report"/>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="domain_force">[('employee_id', '=', user.id)]</field>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+
+    <!-- Rule: Service Managers can see all -->
+    <record id="service_report_rule_manager_all" model="ir.rule">
+        <field name="name">Service Report - Manager Access</field>
+        <field name="model_id" ref="model_service_report"/>
+        <field name="groups" eval="[(4, ref('service_report.group_service_manager'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field> <!-- Always True -->
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
+</odoo>

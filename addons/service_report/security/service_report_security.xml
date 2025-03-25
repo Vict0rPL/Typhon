@@ -1,0 +1,10 @@
+<odoo>
+    <record id="group_service_manager" model="res.groups">
+        <field name="name">Service Manager</field>
+        <field name="category_id" ref="base.module_category_services"/>
+    </record>
+    <record id="group_service_user" model="res.groups">
+        <field name="name">Service User</field>
+        <field name="category_id" ref="base.module_category_services"/>
+    </record>
+</odoo>
