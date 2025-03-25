@@ -8,6 +8,7 @@
         'security/service_report_security.xml',
         'security/service_report_rules.xml',
         'security/ir.model.access.csv',
+        'views/res_config_settings_views.xml',
         'views/service_report_views.xml',
         'views/service_report_templates.xml',
         'data/email_template.xml',

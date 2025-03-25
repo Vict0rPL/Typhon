@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="service_report_res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">service.report.config.settings</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Insert into the general settings block -->
+            <xpath expr="//form" position="inside">
+                <div class="app_settings_block" data-string="Service Report" string="Service Report">
+                    <h2>Service Report</h2>
+                    <div class="row mt16 o_settings_container">
+                        <!-- col-12 col-lg-6 => col-12 col-lg-8 or col-12 col-lg-12, for instance -->
+                        <div class="col-12 col-lg-8 o_setting_box">
+                            <div>
+                                <div>
+                                    <group>
+                                        <field name="default_accounting_email" />
+                                    </group>
+                                </div>
+                            </div>
+                            <div class="o_setting_right_pane"/>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

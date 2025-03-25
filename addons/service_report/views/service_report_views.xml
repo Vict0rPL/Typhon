@@ -14,7 +14,7 @@
                         <field name="employee_id" modifiers="{'readonly': [('is_not_manager','=',True)]}"/>
                         <field name="location" modifiers="{'readonly': [('is_not_manager','=',True)]}"/>
                         <field name="service_date" modifiers="{'readonly': [('is_not_manager','=',True)]}"/>
-                        <field name="email" modifiers="{'readonly': [('is_not_manager','=',True)]}"/>
+                       <field name="accounting_email" modifiers="{'readonly': [('is_not_manager','=',True)]}"/>
                     </group>
 
 

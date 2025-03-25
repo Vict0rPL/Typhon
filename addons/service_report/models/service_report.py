@@ -16,7 +16,7 @@ class ServiceReport(models.Model):
     location = fields.Many2one('res.partner', string="Service Location", required=True)
     service_date = fields.Date('Service Date')
     service_description = fields.Text("Service Description")
-    email = fields.Char("Accounting Email", required=True)
+    accounting_email = fields.Char("Accounting Email", required=True)
     # Travel
     travel_details = fields.One2many('service.report.travel_line', 'report_id', string="Travel Details")
     transport_cost = fields.Float('Transport Cost')
@@ -75,12 +75,24 @@ class ServiceReport(models.Model):
 
     def write(self, vals):
         restricted_fields = {
-            'name', 'service_description', 'employee_id', 'location', 'service_date', 'email'
+            'name', 'service_description', 'employee_id', 'location', 'service_date', 'accounting_email'
         }
         if not self.env.user.has_group('service_report.group_service_manager'):
             if restricted_fields & set(vals):
                 raise AccessError(_("Only managers can modify general service fields."))
         return super().write(vals)
+
+    @api.model
+    def create(self, vals):
+        if not self.env.user.has_group('service_report.group_service_manager'):
+            raise AccessError(_("Only managers can create service reports."))
+
+        if not vals.get('accounting_email'):
+            # Get from config parameter if not set manually
+            default_email = self.env['ir.config_parameter'].sudo().get_param('service_report.default_accounting_email')
+            vals['accounting_email'] = default_email
+
+        return super().create(vals)
 
     def action_send_pdf(self):
         """Send the service report PDF to the given accounting email."""
@@ -97,7 +109,7 @@ class ServiceReport(models.Model):
         mail_values = {
             'subject': _('Service Report - %s') % self.name,
             'body_html': _('<p>Please find attached the service report.</p>'),
-            'email_to': self.email,
+            'email_to': self.accounting_email,
             'attachment_ids': [(0, 0, {
                 'name': '%s.pdf' % self.name,
                 'datas': base64.b64encode(pdf_content),

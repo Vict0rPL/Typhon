@@ -12,7 +12,7 @@
                     <p><strong>Employee:</strong> <t t-esc="doc.employee_id.name"/></p>
                     <p><strong>Location:</strong> <t t-esc="doc.location.name"/></p>
                     <p><strong>Service Date:</strong> <t t-esc="doc.service_date"/></p>
-                    <p><strong>Email:</strong> <t t-esc="doc.email"/></p>
+                    <p><strong>Email:</strong> <t t-esc="doc.accounting_email"/></p>
 
                     <!-- Travel Details -->
                     <h3>Travel Details</h3>
