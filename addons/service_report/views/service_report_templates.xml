@@ -1,22 +1,88 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <template id="report_service_report_template">
         <t t-call="web.html_container">
+            <style>
+                @page {
+                    margin-top: 10mm; /* Default is often 25mm or more */
+                    margin-right: 15mm;
+                    margin-bottom: 15mm;
+                    margin-left: 15mm;
+                }
+            </style>
+
             <t t-set="format_float_time" t-value="lambda t: '%02d:%02d' % (int(t), round((t % 1) * 60))"/>
             <t t-foreach="docs" t-as="doc">
-                <div class="page">
-                    <h2>Service Report: <t t-esc="doc.name"/></h2>
 
-                    <!-- General Information -->
-                    <p><strong>Description:</strong> <t t-esc="doc.service_description"/></p>
-                    <p><strong>Employee:</strong> <t t-esc="doc.employee_id.name"/></p>
-                    <p><strong>Location:</strong> <t t-esc="doc.location.name"/></p>
-                    <p><strong>Service Date:</strong> <t t-esc="doc.service_date"/></p>
-                    <p><strong>Email:</strong> <t t-esc="doc.accounting_email"/></p>
+                <t t-set="footer">
+                    <div style="border-top: 1px solid #ccc; font-size: 10px; padding-top: 5px; text-align: center; color: #999;">
+                        Page <span class="page"/> of <span class="topage"/> | Service Report - <t t-esc="doc.name"/>
+                    </div>
+                </t>
+
+                <style>
+                    .section-title {
+                        font-size: 18px;
+                        color: #2C3E50;
+                        border-bottom: 1px solid #ccc;
+                        padding-bottom: 4px;
+                        margin-top: 25px;
+                        margin-bottom: 10px;
+                    }
+                    .info-block p {
+                        margin: 2px 0;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-bottom: 15px;
+                        font-size: 12px;
+                    }
+                    th, td {
+                        border: 1px solid #ddd;
+                        padding: 6px;
+                    }
+                    th {
+                        background-color: #f2f2f2;
+                        font-weight: bold;
+                        text-align: left;
+                    }
+                    .summary-highlight {
+                        font-size: 14px;
+                        font-weight: bold;
+                        color: #2E86C1;
+                        margin: 4px 0;
+                    }
+                </style>
+
+                <div class="page" style="margin-top: 0px; padding-top: 0px;">
+                    <!-- Header -->
+                    <div style="border-bottom: 2px solid #000; margin-bottom: 20px; padding-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <div>
+                                <t t-set="logo_url" t-value="request.env['ir.config_parameter'].sudo().get_param('web.base.url') + '/service_report/static/src/img/logo.png'"/>
+                                <img t-att-src="logo_url" style="height: 60px;" />
+                            </div>
+                            <div style="text-align: right; font-size: 12px;">
+                                <strong>Your Company Name</strong><br/>
+                                123 Business St.<br/>
+                                City, Country<br/>
+                                contact@yourcompany.com
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- General Info -->
+                    <h2 class="section-title">Service Report: <t t-esc="doc.name"/></h2>
+                    <div class="info-block">
+                        <p><strong>Description:</strong> <t t-esc="doc.service_description"/></p>
+                        <p><strong>Employee:</strong> <t t-esc="doc.employee_id.name"/></p>
+                        <p><strong>Location:</strong> <t t-esc="doc.location.name"/></p>
+                        <p><strong>Service Date:</strong> <t t-esc="doc.service_date"/></p>
+                    </div>
 
                     <!-- Travel Details -->
-                    <h3>Travel Details</h3>
-                    <table class="table table-sm">
+                    <h3 class="section-title">Travel Details</h3>
+                    <table>
                         <thead>
                             <tr>
                                 <th>Start</th>
@@ -42,18 +108,18 @@
                             </t>
                         </tbody>
                     </table>
-                    <p><strong>Transport Cost:</strong> <t t-esc="doc.transport_cost"/></p>
-                    <p><strong>Hotel Cost:</strong> <t t-esc="doc.hotel_cost"/></p>
+                    <p><strong>Transport Cost:</strong> $<t t-esc="doc.transport_cost"/></p>
+                    <p><strong>Hotel Cost:</strong> $<t t-esc="doc.hotel_cost"/></p>
 
                     <!-- Work Details -->
-                    <h3>Work Details</h3>
-                    <table class="table table-sm">
+                    <h3 class="section-title">Work Details</h3>
+                    <table>
                         <thead>
                             <tr>
                                 <th>Description</th>
                                 <th>Start Time</th>
                                 <th>End Time</th>
-                                <th>Time</th>
+                                <th>Total Time</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -69,8 +135,8 @@
                     </table>
 
                     <!-- Parts Used -->
-                    <h3>Parts Used</h3>
-                    <table class="table table-sm">
+                    <h3 class="section-title">Parts Used</h3>
+                    <table>
                         <thead>
                             <tr>
                                 <th>Description</th>
@@ -84,33 +150,33 @@
                                 <tr>
                                     <td><t t-esc="part.description"/></td>
                                     <td><t t-esc="part.quantity"/></td>
-                                    <td><t t-esc="part.unit_cost"/></td>
-                                    <td><t t-esc="part.total_cost"/></td>
+                                    <td>$<t t-esc="part.unit_cost"/></td>
+                                    <td>$<t t-esc="part.total_cost"/></td>
                                 </tr>
                             </t>
                         </tbody>
                     </table>
-                    <p><strong>Machine Parts Cost:</strong> <t t-esc="doc.machine_parts_cost"/></p>
+                    <p><strong>Machine Parts Cost:</strong> $<t t-esc="doc.machine_parts_cost"/></p>
 
                     <!-- Summary -->
-                    <h3>Summary</h3>
-                    <p><strong>Total Work Time:</strong> <t t-esc="format_float_time(float(doc.total_work_time)) if doc.total_work_time else ''"/></p>
-                    <p><strong>Total Cost:</strong> <t t-esc="doc.total_cost"/></p>
+                    <h3 class="section-title">Summary</h3>
+                    <p class="summary-highlight">Total Work Time: <t t-esc="format_float_time(float(doc.total_work_time)) if doc.total_work_time else ''"/></p>
+                    <p class="summary-highlight">Total Cost: $<t t-esc="doc.total_cost"/></p>
                     <p><strong>Client Email:</strong> <t t-esc="doc.client_email"/></p>
-                    <p><strong>Signed:</strong> <t t-esc="doc.signed and 'Yes' or 'No'"/></p>
 
                     <!-- Signature -->
                     <t t-if="doc.client_signature">
                         <p><strong>Client Signature:</strong></p>
-                        <img t-att-src="'data:image/png;base64,' + doc.client_signature.decode('ascii')"
-                             style="max-width:300px;"/>
+                        <div style="border: 1px solid #ccc; width: 300px; height: 100px; padding: 5px;">
+                            <img t-att-src="'data:image/png;base64,' + doc.client_signature.decode('ascii')" style="max-height: 100px;"/>
+                        </div>
                     </t>
                 </div>
             </t>
         </t>
     </template>
 
-     <!-- Define the report action -->
+    <!-- Report Action -->
     <record id="action_report_service_report_pdf" model="ir.actions.report">
         <field name="name">Service Report</field>
         <field name="model">service.report</field>
@@ -120,5 +186,4 @@
         <field name="print_report_name">'Service_Report_%s' % (object.name)</field>
         <field name="binding_type">report</field>
     </record>
-
 </odoo>

@@ -101,6 +101,8 @@
         <field name="view_mode">tree,form</field>
     </record>
 
+<menuitem name="Service Report" id="menu_root_service_report" web_icon="service_report,static/description/iconr.png"/>
+
 <menuitem id="menu_service_report_root"
           name="Service Reports"
           sequence="10"
