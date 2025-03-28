@@ -75,7 +75,8 @@
                         </page>
 
                     </notebook>
-                <button name="action_print" type="object" string="Send PDF" class="btn-primary"/>
+                    <button name="action_print" type="object" string="Download PDF" class="btn-primary"/>
+                    <button name="action_send_pdf" type="object" string="Send E-mail" class="btn-primary"/>
                 </sheet>
             </form>
         </field>

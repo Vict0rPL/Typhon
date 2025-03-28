@@ -100,22 +100,22 @@ class ServiceReport(models.Model):
         if not self.signed:
             raise UserError(_("The report has not been signed by the client yet!"))
 
-        # Generate PDF using the QWeb report
-        report = self.env.ref('service_report.action_report_service_report_pdf')
+        # Generate PDF
+        pdf_content, _ignored = self.env['ir.actions.report']._render_qweb_pdf(
+            'service_report.action_report_service_report_pdf', self.id
+        )
 
-        pdf_content, _ignored = report._render_qweb_pdf(self.ids)
-
-        # Prepare the email with the PDF as an attachment
+        # Prepare and send email
         mail_values = {
             'subject': _('Service Report - %s') % self.name,
             'body_html': _('<p>Please find attached the service report.</p>'),
             'email_to': self.accounting_email,
             'attachment_ids': [(0, 0, {
                 'name': '%s.pdf' % self.name,
-                'datas': base64.b64encode(pdf_content),
-                'datas_fname': '%s.pdf' % self.name,
+                'datas': base64.b64encode(pdf_content).decode(),  # convert bytes to str
                 'res_model': 'service.report',
                 'res_id': self.id,
+                'mimetype': 'application/pdf',
             })],
         }
         mail = self.env['mail.mail'].create(mail_values)
