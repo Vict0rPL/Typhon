@@ -124,6 +124,11 @@ class ServiceReport(models.Model):
             'service_report.action_report_service_report_pdf')
         .report_action(self))
 
+    def action_save(self):
+        # This will trigger a save of the current record.
+        self.write({})
+        return True
+
 
 class ServiceReportTravelLine(models.Model):
     _name = 'service.report.travel_line'

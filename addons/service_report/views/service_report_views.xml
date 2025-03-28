@@ -5,6 +5,12 @@
         <field name="model">service.report</field>
         <field name="arch" type="xml">
             <form string="Service Report">
+                <header>
+                    <button name="action_save" type="object"
+                            class="btn btn-success"
+                            string="Save"
+                            icon="fa-save"/>
+                </header>
                 <sheet>
                     <group>
                         <field name="is_not_manager" invisible="1"/>
@@ -99,7 +105,7 @@
         <field name="view_mode">tree,form</field>
     </record>
 
-    <menuitem name="Service Report" id="menu_root_service_report" web_icon="service_report,static/description/iconr.png"/>
+    <menuitem name="Service Report" id="menu_root_service_report" web_icon="service_report,static/description/icon.png"/>
 
     <menuitem id="menu_service_report_root"
               name="Service Reports"
