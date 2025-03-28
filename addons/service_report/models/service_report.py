@@ -1,4 +1,3 @@
-# models/service_report.py
 import base64
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
@@ -8,7 +7,7 @@ from odoo.exceptions import AccessError
 class ServiceReport(models.Model):
     _name = 'service.report'
     _description = 'Service Report'
-    #Check role
+    # Check role
     is_not_manager = fields.Boolean(compute='_compute_is_not_manager', store=False)
     # General
     name = fields.Char('Report Reference', required=True, copy=False, default=lambda self: _('New Report'))
@@ -17,6 +16,12 @@ class ServiceReport(models.Model):
     service_date = fields.Date('Service Date')
     service_description = fields.Text("Service Description")
     accounting_email = fields.Char("Accounting Email", required=True)
+    currency_id = fields.Many2one(
+        'res.currency',
+        string="Currency",
+        required=True,
+        default=lambda self: self.env.company.currency_id
+    )
     # Travel
     travel_details = fields.One2many('service.report.travel_line', 'report_id', string="Travel Details")
     transport_cost = fields.Float('Transport Cost')
@@ -26,13 +31,13 @@ class ServiceReport(models.Model):
     # Parts Used
     parts_used = fields.One2many('service.report.part_line', 'report_id', string="Parts Used")
     machine_parts_cost = fields.Float(string="Machine Parts Cost", compute="_compute_parts_cost", store=True)
-    #Summary
+    # Summary
     total_work_time = fields.Float(string="Total Work Time", compute="_compute_total_time", store=True)
     total_cost = fields.Float(string="Total Cost", compute="_compute_total_cost", store=True)
     # Client Data and Signature
     client_email = fields.Char("Client Email")
     client_signature = fields.Binary("Client Signature", help="Client signature image")
-    signed = fields.Boolean( string="Signed by Client", compute="_compute_signed", store=True)
+    signed = fields.Boolean(string="Signed by Client", compute="_compute_signed", store=True)
 
     @api.depends('travel_details.time', 'employee_services.time')
     def _compute_total_time(self):
@@ -61,6 +66,10 @@ class ServiceReport(models.Model):
     def create(self, vals):
         if not self.env.user.has_group('service_report.group_service_manager'):
             raise AccessError(_("Only managers can create service reports."))
+        if not vals.get('accounting_email'):
+            # Get from config parameter if not set manually
+            default_email = self.env['ir.config_parameter'].sudo().get_param('service_report.default_accounting_email')
+            vals['accounting_email'] = default_email
         return super().create(vals)
 
     def unlink(self):
@@ -81,18 +90,6 @@ class ServiceReport(models.Model):
             if restricted_fields & set(vals):
                 raise AccessError(_("Only managers can modify general service fields."))
         return super().write(vals)
-
-    @api.model
-    def create(self, vals):
-        if not self.env.user.has_group('service_report.group_service_manager'):
-            raise AccessError(_("Only managers can create service reports."))
-
-        if not vals.get('accounting_email'):
-            # Get from config parameter if not set manually
-            default_email = self.env['ir.config_parameter'].sudo().get_param('service_report.default_accounting_email')
-            vals['accounting_email'] = default_email
-
-        return super().create(vals)
 
     def action_send_pdf(self):
         """Send the service report PDF to the given accounting email."""
@@ -150,7 +147,6 @@ class ServiceReportTravelLine(models.Model):
                 record.time = 0.0
 
 
-
 class ServiceReportWorkLine(models.Model):
     _name = 'service.report.work_line'
     _description = 'Service Report Work Line'
@@ -184,6 +180,3 @@ class ServiceReportPartLine(models.Model):
     def _compute_line_cost(self):
         for line in self:
             line.total_cost = line.quantity * line.unit_cost
-
-
-

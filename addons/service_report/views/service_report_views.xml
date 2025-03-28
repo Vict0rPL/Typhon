@@ -8,15 +8,14 @@
                 <sheet>
                     <group>
                         <field name="is_not_manager" invisible="1"/>
-
                         <field name="name" modifiers="{'readonly': [('is_not_manager','=',True)]}"/>
                         <field name="service_description" modifiers="{'readonly': [('is_not_manager','=',True)]}"/>
                         <field name="employee_id" modifiers="{'readonly': [('is_not_manager','=',True)]}"/>
                         <field name="location" modifiers="{'readonly': [('is_not_manager','=',True)]}"/>
                         <field name="service_date" modifiers="{'readonly': [('is_not_manager','=',True)]}"/>
-                       <field name="accounting_email" modifiers="{'readonly': [('is_not_manager','=',True)]}"/>
+                        <field name="accounting_email" modifiers="{'readonly': [('is_not_manager','=',True)]}"/>
+                        <field name="currency_id" modifiers="{'readonly': [('is_not_manager','=',True)]}"/>
                     </group>
-
 
                     <notebook>
                         <page string="Travel Details">
@@ -71,9 +70,7 @@
                                 <field name="total_work_time" widget="float_time" readonly="1"/>
                                 <field name="total_cost" readonly="1"/>
                             </group>
-
                         </page>
-
                     </notebook>
                     <button name="action_print" type="object" string="Download PDF" class="btn-primary"/>
                     <button name="action_send_pdf" type="object" string="Send E-mail" class="btn-primary"/>
@@ -102,18 +99,17 @@
         <field name="view_mode">tree,form</field>
     </record>
 
-<menuitem name="Service Report" id="menu_root_service_report" web_icon="service_report,static/description/iconr.png"/>
+    <menuitem name="Service Report" id="menu_root_service_report" web_icon="service_report,static/description/iconr.png"/>
 
-<menuitem id="menu_service_report_root"
-          name="Service Reports"
-          sequence="10"
-          groups="service_report.group_service_user"/>
+    <menuitem id="menu_service_report_root"
+              name="Service Reports"
+              sequence="10"
+              groups="service_report.group_service_user"/>
 
-<menuitem id="menu_service_report"
-          name="Reports"
-          parent="menu_service_report_root"
-          action="action_service_report"
-          sequence="10"
-          groups="service_report.group_service_user"/>
-
+    <menuitem id="menu_service_report"
+              name="Reports"
+              parent="menu_service_report_root"
+              action="action_service_report"
+              sequence="10"
+              groups="service_report.group_service_user"/>
 </odoo>

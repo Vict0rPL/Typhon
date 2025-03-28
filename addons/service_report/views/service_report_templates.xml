@@ -1,12 +1,22 @@
 <odoo>
     <template id="report_service_report_template">
         <t t-call="web.html_container">
+             <head>
+                <meta charset="UTF-8"/>
+            </head>
             <style>
                 @page {
                     margin-top: 10mm; /* Default is often 25mm or more */
                     margin-right: 15mm;
                     margin-bottom: 15mm;
                     margin-left: 15mm;
+                }
+                @font-face {
+                    font-family: 'DejaVuSans';
+                    src: url("/service_report/static/fonts/DejaVuSans.ttf") format("truetype");
+                }
+                body, .page {
+                    font-family: "DejaVu Sans", sans-serif !important;
                 }
             </style>
 
@@ -52,11 +62,15 @@
                         color: #2E86C1;
                         margin: 4px 0;
                     }
+                    /* This class prevents page-breaks inside sections */
+                    .avoid-page-break {
+                        page-break-inside: avoid;
+                    }
                 </style>
 
                 <div class="page" style="margin-top: 0px; padding-top: 0px;">
                     <!-- Header -->
-                    <div style="border-bottom: 2px solid #000; margin-bottom: 20px; padding-bottom: 10px;">
+                    <div style="border-bottom: 2px solid #000; margin-bottom: 20px; padding-bottom: 10px;" class="avoid-page-break">
                         <div style="display: flex; justify-content: space-between;">
                             <div>
                                 <t t-set="logo_url" t-value="request.env['ir.config_parameter'].sudo().get_param('web.base.url') + '/service_report/static/src/img/logo.png'"/>
@@ -72,105 +86,115 @@
                     </div>
 
                     <!-- General Info -->
-                    <h2 class="section-title">Service Report: <t t-esc="doc.name"/></h2>
-                    <div class="info-block">
-                        <p><strong>Description:</strong> <t t-esc="doc.service_description"/></p>
-                        <p><strong>Employee:</strong> <t t-esc="doc.employee_id.name"/></p>
-                        <p><strong>Location:</strong> <t t-esc="doc.location.name"/></p>
-                        <p><strong>Service Date:</strong> <t t-esc="doc.service_date"/></p>
+                    <div class="avoid-page-break">
+                        <h2 class="section-title">Service Report: <t t-esc="doc.name"/></h2>
+                        <div class="info-block">
+                            <p><strong>Description:</strong> <t t-esc="doc.service_description"/></p>
+                            <p><strong>Employee:</strong> <t t-esc="doc.employee_id.name"/></p>
+                            <p><strong>Location:</strong> <t t-esc="doc.location.name"/></p>
+                            <p><strong>Service Date:</strong> <t t-esc="doc.service_date"/></p>
+                            <p><strong>Currency:</strong> <t t-esc="doc.currency_id.name"/></p>
+                        </div>
                     </div>
 
                     <!-- Travel Details -->
-                    <h3 class="section-title">Travel Details</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Start</th>
-                                <th>End</th>
-                                <th>Distance</th>
-                                <th>Start Time</th>
-                                <th>End Time</th>
-                                <th>Total Time</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <t t-foreach="doc.travel_details" t-as="td">
+                    <div class="avoid-page-break">
+                        <h3 class="section-title">Travel Details</h3>
+                        <table>
+                            <thead>
                                 <tr>
-                                    <td><t t-esc="td.start_location"/></td>
-                                    <td><t t-esc="td.end_location"/></td>
-                                    <td><t t-esc="td.distance"/></td>
-                                    <td><t t-esc="format_float_time(float(td.start_time)) if td.start_time else ''"/></td>
-                                    <td><t t-esc="format_float_time(float(td.end_time)) if td.end_time else ''"/></td>
-                                    <td><t t-esc="format_float_time(float(td.time)) if td.time else ''"/></td>
-                                    <td><t t-esc="td.date"/></td>
+                                    <th>Start</th>
+                                    <th>End</th>
+                                    <th>Distance</th>
+                                    <th>Start Time</th>
+                                    <th>End Time</th>
+                                    <th>Total Time</th>
+                                    <th>Date</th>
                                 </tr>
-                            </t>
-                        </tbody>
-                    </table>
-                    <p><strong>Transport Cost:</strong> $<t t-esc="doc.transport_cost"/></p>
-                    <p><strong>Hotel Cost:</strong> $<t t-esc="doc.hotel_cost"/></p>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="doc.travel_details" t-as="td">
+                                    <tr>
+                                        <td><t t-esc="td.start_location"/></td>
+                                        <td><t t-esc="td.end_location"/></td>
+                                        <td><t t-esc="td.distance"/></td>
+                                        <td><t t-esc="format_float_time(float(td.start_time)) if td.start_time else ''"/></td>
+                                        <td><t t-esc="format_float_time(float(td.end_time)) if td.end_time else ''"/></td>
+                                        <td><t t-esc="format_float_time(float(td.time)) if td.time else ''"/></td>
+                                        <td><t t-esc="td.date"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                        <p><strong>Transport Cost:</strong> <t t-esc="doc.transport_cost"/> <t t-esc="doc.currency_id.symbol"/></p>
+                        <p><strong>Hotel Cost:</strong> <t t-esc="doc.hotel_cost"/> <t t-esc="doc.currency_id.symbol"/></p>
+                    </div>
 
                     <!-- Work Details -->
-                    <h3 class="section-title">Work Details</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Description</th>
-                                <th>Start Time</th>
-                                <th>End Time</th>
-                                <th>Total Time</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <t t-foreach="doc.employee_services" t-as="line">
+                    <div class="avoid-page-break" style="page-break-before: auto;">
+                        <h3 class="section-title">Work Details</h3>
+                        <table>
+                            <thead>
                                 <tr>
-                                    <td><t t-esc="line.description"/></td>
-                                    <td><t t-esc="format_float_time(float(line.start_time)) if line.start_time else ''"/></td>
-                                    <td><t t-esc="format_float_time(float(line.end_time)) if line.end_time else ''"/></td>
-                                    <td><t t-esc="format_float_time(float(line.time)) if line.time else ''"/></td>
+                                    <th>Description</th>
+                                    <th>Start Time</th>
+                                    <th>End Time</th>
+                                    <th>Total Time</th>
                                 </tr>
-                            </t>
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="doc.employee_services" t-as="line">
+                                    <tr>
+                                        <td><t t-esc="line.description"/></td>
+                                        <td><t t-esc="format_float_time(float(line.start_time)) if line.start_time else ''"/></td>
+                                        <td><t t-esc="format_float_time(float(line.end_time)) if line.end_time else ''"/></td>
+                                        <td><t t-esc="format_float_time(float(line.time)) if line.time else ''"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
 
                     <!-- Parts Used -->
-                    <h3 class="section-title">Parts Used</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Description</th>
-                                <th>Quantity</th>
-                                <th>Unit Cost</th>
-                                <th>Total Cost</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <t t-foreach="doc.parts_used" t-as="part">
+                    <div class="avoid-page-break" style="page-break-before: auto;">
+                        <h3 class="section-title">Parts Used</h3>
+                        <table>
+                            <thead>
                                 <tr>
-                                    <td><t t-esc="part.description"/></td>
-                                    <td><t t-esc="part.quantity"/></td>
-                                    <td>$<t t-esc="part.unit_cost"/></td>
-                                    <td>$<t t-esc="part.total_cost"/></td>
+                                    <th>Description</th>
+                                    <th>Quantity</th>
+                                    <th>Unit Cost</th>
+                                    <th>Total Cost</th>
                                 </tr>
-                            </t>
-                        </tbody>
-                    </table>
-                    <p><strong>Machine Parts Cost:</strong> $<t t-esc="doc.machine_parts_cost"/></p>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="doc.parts_used" t-as="part">
+                                    <tr>
+                                        <td><t t-esc="part.description"/></td>
+                                        <td><t t-esc="part.quantity"/></td>
+                                        <td><t t-esc="part.unit_cost"/> <t t-esc="doc.currency_id.symbol"/></td>
+                                        <td><t t-esc="part.total_cost"/> <t t-esc="doc.currency_id.symbol"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                        <p><strong>Machine Parts Cost:</strong> <t t-esc="doc.machine_parts_cost"/> <t t-esc="doc.currency_id.symbol"/></p>
+                    </div>
 
                     <!-- Summary -->
-                    <h3 class="section-title">Summary</h3>
-                    <p class="summary-highlight">Total Work Time: <t t-esc="format_float_time(float(doc.total_work_time)) if doc.total_work_time else ''"/></p>
-                    <p class="summary-highlight">Total Cost: $<t t-esc="doc.total_cost"/></p>
-                    <p><strong>Client Email:</strong> <t t-esc="doc.client_email"/></p>
-
-                    <!-- Signature -->
-                    <t t-if="doc.client_signature">
-                        <p><strong>Client Signature:</strong></p>
-                        <div style="border: 1px solid #ccc; width: 300px; height: 100px; padding: 5px;">
-                            <img t-att-src="'data:image/png;base64,' + doc.client_signature.decode('ascii')" style="max-height: 100px;"/>
-                        </div>
-                    </t>
+                    <div class="avoid-page-break" style="page-break-before: auto;">
+                        <h3 class="section-title">Summary</h3>
+                        <p class="summary-highlight">Total Work Time: <t t-esc="format_float_time(float(doc.total_work_time)) if doc.total_work_time else ''"/></p>
+                        <p class="summary-highlight">Total Cost: <t t-esc="doc.total_cost"/> <t t-esc="doc.currency_id.symbol"/></p>
+                        <p><strong>Client Email:</strong> <t t-esc="doc.client_email"/></p>
+                        <!-- Signature -->
+                        <t t-if="doc.client_signature">
+                            <p><strong>Client Signature:</strong></p>
+                            <div style="border: 1px solid #ccc; width: 300px; height: 100px; padding: 5px;">
+                                <img t-att-src="'data:image/png;base64,' + doc.client_signature.decode('ascii')" style="max-height: 100px;"/>
+                            </div>
+                        </t>
+                    </div>
                 </div>
             </t>
         </t>
